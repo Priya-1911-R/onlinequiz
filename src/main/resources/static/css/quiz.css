@@ -1,0 +1,130 @@
+/* Quiz Specific Styles */
+.quiz-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.quiz-header {
+    background: var(--primary-color);
+    color: white;
+    padding: 20px;
+    border-radius: 15px 15px 0 0;
+    margin-bottom: 0;
+}
+
+.quiz-timer {
+    font-size: 1.5rem;
+    font-weight: bold;
+    background: var(--danger-color);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 25px;
+    display: inline-block;
+}
+
+.quiz-progress {
+    height: 8px;
+    background: #e9ecef;
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 20px 0;
+}
+
+.quiz-progress-bar {
+    height: 100%;
+    background: var(--success-color);
+    transition: width 0.3s ease;
+}
+
+.question-card {
+    background: white;
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    border-left: 4px solid var(--primary-color);
+}
+
+.question-header {
+    background: #f8f9fa;
+    padding: 15px 20px;
+    border-bottom: 1px solid #e9ecef;
+    border-radius: 15px 15px 0 0;
+}
+
+.question-body {
+    padding: 20px;
+}
+
+.option-item {
+    background: #f8f9fa;
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.option-item:hover {
+    border-color: var(--primary-color);
+    background: white;
+}
+
+.option-item.selected {
+    border-color: var(--primary-color);
+    background: rgba(67, 97, 238, 0.1);
+}
+
+.option-item.correct {
+    border-color: #28a745;
+    background: #d4edda;
+}
+
+.option-item.incorrect {
+    border-color: #dc3545;
+    background: #f8d7da;
+}
+
+.option-input {
+    margin-right: 10px;
+}
+
+.navigation-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 30px;
+}
+
+.results-container {
+    text-align: center;
+    padding: 40px;
+}
+
+.score-circle {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 30px;
+    font-size: 2rem;
+    font-weight: bold;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.performance-badge {
+    display: inline-block;
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-weight: 500;
+    margin-bottom: 20px;
+}
+
+.performance-excellent { background: #d4edda; color: #155724; }
+.performance-good { background: #fff3cd; color: #856404; }
+.performance-average { background: #ffeaa7; color: #856404; }
+.performance-poor { background: #f8d7da; color: #721c24; }

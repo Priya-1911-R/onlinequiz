@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <div th:replace="fragments/header :: header('Page Not Found')"></div>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-card text-center">
+            <div class="auth-header">
+                <div class="auth-logo">
+                    <i class="fas fa-exclamation-triangle fa-4x text-warning"></i>
+                </div>
+                <h1 class="auth-title mt-3">404</h1>
+                <h2 class="auth-subtitle">Page Not Found</h2>
+            </div>
+
+            <div class="mt-4">
+                <p class="lead">The page you're looking for doesn't exist or has been moved.</p>
+                <p class="text-muted">Don't worry, even the best explorers get lost sometimes.</p>
+            </div>
+
+            <div class="row mt-5">
+                <div class="col-md-6 mb-3">
+                    <div class="card quiz-card">
+                        <div class="card-body">
+                            <i class="fas fa-home fa-2x text-primary mb-3"></i>
+                            <h5>Go Home</h5>
+                            <p>Return to the homepage and start fresh</p>
+                            <a th:href="@{/}" class="btn btn-primary mt-2">
+                                <i class="fas fa-home"></i> Homepage
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <div class="card quiz-card">
+                        <div class="card-body">
+                            <i class="fas fa-search fa-2x text-info mb-3"></i>
+                            <h5>Search Quizzes</h5>
+                            <p>Browse our collection of available quizzes</p>
+                            <a th:href="@{/quiz/browse}" class="btn btn-info mt-2">
+                                <i class="fas fa-search"></i> Browse Quizzes
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="auth-footer mt-4">
+                <p>If you believe this is an error, please <a href="#">contact support</a>.</p>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="fragments/footer :: footer"></div>
+</body>
+</html>

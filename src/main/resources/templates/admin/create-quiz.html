@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Create Quiz</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .question-item {
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            background: white;
+        }
+        .option-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            padding: 8px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+        .correct-option {
+            background-color: #d4edda;
+            border-left: 4px solid #28a745;
+        }
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Admin Sidebar -->
+            <nav class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+                <div class="position-sticky pt-3">
+                    <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                        <span>Administration</span>
+                    </h6>
+                    <ul class="nav flex-column mb-2">
+                        <li class="nav-item">
+                            <a class="nav-link" th:href="@{/admin/dashboard}">
+                                <i class="fas fa-tachometer-alt me-2"></i>
+                                Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" th:href="@{/admin/quizzes}">
+                                <i class="fas fa-list me-2"></i>
+                                Manage Quizzes
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" th:href="@{/admin/quizzes/create}">
+                                <i class="fas fa-plus me-2"></i>
+                                Create Quiz
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Main content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">Create New Quiz</h1>
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <a th:href="@{/admin/quizzes}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to Quizzes
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Alert Messages -->
+                <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+                    <strong>Success!</strong> <span th:text="${success}">Quiz created successfully.</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                
+                <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <strong>Error!</strong> <span th:text="${error}">Failed to create quiz.</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+
+                <!-- Create Quiz Form -->
+                <form th:action="@{/admin/quizzes/create}" method="post" id="quizForm">
+                    <!-- Basic Information -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Basic Information</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="mb-3">
+                                        <label for="title" class="form-label">Quiz Title <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="title" name="title" 
+                                               placeholder="Enter quiz title" required
+                                               th:value="${quizDTO?.title ?: 'HTML Basics Quiz'}">
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="timeLimit" class="form-label">Time Limit (minutes) <span class="text-danger">*</span></label>
+                                        <input type="number" class="form-control" id="timeLimit" name="timeLimit" 
+                                               min="1" max="180" th:value="${quizDTO?.timeLimit ?: 10}" required>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="description" class="form-label">Description</label>
+                                <textarea class="form-control" id="description" name="description" 
+                                          rows="3" placeholder="Enter quiz description (optional)"
+                                          th:text="${quizDTO?.description ?: 'Test your HTML knowledge with this basic quiz'}"></textarea>
+                            </div>
+                            
+                            <div class="mb-3 form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="active" name="active" 
+                                       th:checked="${quizDTO?.active != null ? quizDTO.active : true}">
+                                <label class="form-check-label" for="active">Activate quiz immediately</label>
+                            </div>
+
+                            <div class="mb-3 form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="publicQuiz" name="publicQuiz" 
+                                       th:checked="${quizDTO?.publicQuiz != null ? quizDTO.publicQuiz : true}">
+                                <label class="form-check-label" for="publicQuiz">Make quiz public</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Questions Section -->
+                    <div class="card mb-4">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="card-title mb-0">Questions</h5>
+                            <button type="button" class="btn btn-primary btn-sm" onclick="addQuestion()">
+                                <i class="fas fa-plus"></i> Add Question
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <div id="questions-container">
+                                <!-- Questions will be added here by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <a th:href="@{/admin/quizzes}" class="btn btn-secondary">
+                                    <i class="fas fa-times"></i> Cancel
+                                </a>
+                                <button type="submit" class="btn btn-success" id="submitBtn">
+                                    <i class="fas fa-save"></i> Create Quiz
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </main>
+        </div>
+    </div>
+
+    <!-- Question Template (Hidden) -->
+    <div id="question-template" class="d-none">
+        <div class="question-item" data-question-index="{index}">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <h6 class="mb-0">Question <span class="question-number">{number}</span></h6>
+                <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeQuestion(this)">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+            
+            <div class="mb-3">
+                <label class="form-label">Question Text <span class="text-danger">*</span></label>
+                <textarea class="form-control question-text" name="questions[{index}].text" 
+                          placeholder="Enter your question here..." rows="2" required></textarea>
+            </div>
+            
+            <div class="options-container mb-3">
+                <label class="form-label">Options <span class="text-danger">*</span></label>
+                <div class="option-item">
+                    <input type="radio" name="questions[{index}].correctAnswer" value="0" class="me-2 correct-radio" required>
+                    <input type="text" class="form-control option-text" name="questions[{index}].options[0]" 
+                           placeholder="Option 1" required>
+                </div>
+                <div class="option-item">
+                    <input type="radio" name="questions[{index}].correctAnswer" value="1" class="me-2 correct-radio">
+                    <input type="text" class="form-control option-text" name="questions[{index}].options[1]" 
+                           placeholder="Option 2" required>
+                </div>
+                <div class="option-item">
+                    <input type="radio" name="questions[{index}].correctAnswer" value="2" class="me-2 correct-radio">
+                    <input type="text" class="form-control option-text" name="questions[{index}].options[2]" 
+                           placeholder="Option 3">
+                </div>
+                <div class="option-item">
+                    <input type="radio" name="questions[{index}].correctAnswer" value="3" class="me-2 correct-radio">
+                    <input type="text" class="form-control option-text" name="questions[{index}].options[3]" 
+                           placeholder="Option 4">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    let questionCount = 0;
+    
+    function addQuestion() {
+        if (questionCount >= 10) {
+            alert('Maximum 10 questions allowed per quiz.');
+            return;
+        }
+        
+        const template = document.getElementById('question-template').innerHTML;
+        const questionHtml = template
+            .replace(/{index}/g, questionCount)
+            .replace(/{number}/g, questionCount + 1);
+            
+        const container = document.getElementById('questions-container');
+        
+        container.insertAdjacentHTML('beforeend', questionHtml);
+        
+        // Auto-select first option as correct by default
+        const newQuestion = container.lastElementChild;
+        const firstRadio = newQuestion.querySelector('input[type="radio"]');
+        if (firstRadio) {
+            firstRadio.checked = true;
+            updateOptionStyles(newQuestion);
+        }
+        
+        questionCount++;
+        
+        // Add event listeners for radio buttons
+        const radioButtons = newQuestion.querySelectorAll('.correct-radio');
+        radioButtons.forEach(radio => {
+            radio.addEventListener('change', function() {
+                updateOptionStyles(newQuestion);
+            });
+        });
+        
+        console.log("Added question, total questions:", questionCount);
+    }
+    
+    function removeQuestion(button) {
+        const questionItem = button.closest('.question-item');
+        const questionIndex = parseInt(questionItem.dataset.questionIndex);
+        questionItem.remove();
+        
+        // Re-index all questions
+        const questions = document.querySelectorAll('.question-item');
+        questionCount = questions.length;
+        
+        questions.forEach((question, index) => {
+            question.dataset.questionIndex = index;
+            question.querySelector('.question-number').textContent = index + 1;
+            
+            // Update all input names
+            const textarea = question.querySelector('.question-text');
+            textarea.name = `questions[${index}].text`;
+            
+            const radioButtons = question.querySelectorAll('.correct-radio');
+            const optionInputs = question.querySelectorAll('.option-text');
+            
+            radioButtons.forEach((radio, radioIndex) => {
+                radio.name = `questions[${index}].correctAnswer`;
+                radio.value = radioIndex;
+            });
+            
+            optionInputs.forEach((input, inputIndex) => {
+                input.name = `questions[${index}].options[${inputIndex}]`;
+            });
+        });
+        
+        console.log("Removed question, total questions:", questionCount);
+        
+        if (questionCount === 0) {
+            const container = document.getElementById('questions-container');
+            container.innerHTML = '';
+        }
+    }
+    
+    function updateOptionStyles(questionElement) {
+        const optionItems = questionElement.querySelectorAll('.option-item');
+        optionItems.forEach(item => {
+            item.classList.remove('correct-option');
+        });
+        
+        const checkedRadio = questionElement.querySelector('.correct-radio:checked');
+        if (checkedRadio) {
+            checkedRadio.closest('.option-item').classList.add('correct-option');
+        }
+    }
+    
+    // Enhanced form validation
+    document.getElementById('quizForm').addEventListener('submit', function(e) {
+        console.log("Form submission started...");
+        
+        // Basic validation
+        const title = document.getElementById('title').value.trim();
+        const timeLimit = document.getElementById('timeLimit').value;
+        
+        if (!title) {
+            alert('Please provide a quiz title.');
+            document.getElementById('title').focus();
+            e.preventDefault();
+            return;
+        }
+        
+        if (!timeLimit || timeLimit < 1) {
+            alert('Please provide a valid time limit.');
+            document.getElementById('timeLimit').focus();
+            e.preventDefault();
+            return;
+        }
+        
+        // Question validation
+        const questions = document.querySelectorAll('.question-item');
+        if (questions.length === 0) {
+            alert('Please add at least one question to the quiz.');
+            e.preventDefault();
+            return;
+        }
+        
+        let valid = true;
+        let errorMessage = '';
+        
+        questions.forEach((question, index) => {
+            const questionText = question.querySelector('.question-text').value.trim();
+            if (!questionText) {
+                errorMessage = `Please provide text for Question ${index + 1}`;
+                valid = false;
+                question.querySelector('.question-text').focus();
+                return;
+            }
+            
+            const optionItems = question.querySelectorAll('.option-item');
+            let filledOptions = 0;
+            let hasEmptyOption = false;
+            
+            optionItems.forEach((item, optIndex) => {
+                const optionText = item.querySelector('.option-text').value.trim();
+                if (optionText !== '') {
+                    filledOptions++;
+                } else if (optIndex < 2) {
+                    // First two options are required
+                    hasEmptyOption = true;
+                }
+            });
+            
+            if (filledOptions < 2) {
+                errorMessage = `Question ${index + 1} must have at least 2 options`;
+                valid = false;
+                return;
+            }
+            
+            if (hasEmptyOption) {
+                errorMessage = `Question ${index + 1}: First two options are required`;
+                valid = false;
+                return;
+            }
+            
+            const hasCorrectAnswer = question.querySelector('.correct-radio:checked');
+            if (!hasCorrectAnswer) {
+                errorMessage = `Please select the correct answer for Question ${index + 1}`;
+                valid = false;
+                return;
+            }
+        });
+        
+        if (!valid) {
+            alert(errorMessage);
+            e.preventDefault();
+            return;
+        }
+        
+        // Show loading state but DON'T prevent default submission
+        const submitBtn = document.getElementById('submitBtn');
+        const originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating Quiz...';
+        submitBtn.disabled = true;
+        
+        console.log("Form is valid, submitting normally...");
+        // Let the form submit normally - don't call this.submit() again
+    });
+    
+    // Initialize with one question
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log("Page loaded, initializing with one question...");
+        
+        // Clear any existing content
+        const container = document.getElementById('questions-container');
+        container.innerHTML = '';
+        questionCount = 0;
+        
+        // Add exactly ONE question
+        addQuestion();
+        
+        // Pre-fill the first question with sample data
+        const firstQuestion = document.querySelector('.question-item');
+        if (firstQuestion) {
+            const questionText = firstQuestion.querySelector('.question-text');
+            const optionInputs = firstQuestion.querySelectorAll('.option-text');
+            const radioButtons = firstQuestion.querySelectorAll('.correct-radio');
+            
+            // Set question text
+            questionText.value = "WHAT DOES HTML STAND FOR?";
+            
+            // Set options
+            if (optionInputs.length >= 4) {
+                optionInputs[0].value = "A. Hyper Text Markup Language";
+                optionInputs[1].value = "B. High Tech Modern Language";
+                optionInputs[2].value = "C. Hyper Transfer Markup Language";
+                optionInputs[3].value = "D. Home Tool Markup Language";
+            }
+            
+            // Set correct answer (Option A - index 0)
+            if (radioButtons.length > 0) {
+                radioButtons[0].checked = true;
+                updateOptionStyles(firstQuestion);
+            }
+        }
+        
+        console.log("Initialization complete. Total questions:", questionCount);
+    });
+    </script>
+</body>
+</html>

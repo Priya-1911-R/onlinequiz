@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${quiz.title} + ' - Take Quiz'">Take Quiz</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .quiz-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .quiz-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px 10px 0 0;
+        }
+        
+        .question-card {
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .question-header {
+            background-color: #f8f9fa;
+            padding: 15px 20px;
+            border-bottom: 1px solid #dee2e6;
+            border-radius: 10px 10px 0 0;
+        }
+        
+        .option-item {
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .option-item:hover {
+            border-color: #007bff;
+            background-color: #f8f9fa;
+        }
+        
+        .option-item.selected {
+            border-color: #007bff;
+            background-color: #e7f3ff;
+        }
+        
+        .debug-info {
+            background: #f8f9fa;
+            border-left: 4px solid #007bff;
+            padding: 10px;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="quiz-container">
+        <!-- Debug Information -->
+        <div class="debug-info" th:if="${debug}">
+            <strong>Debug Info:</strong><br>
+            Quiz: <span th:text="${quiz != null ? quiz.title : 'NULL'}">No quiz</span><br>
+            Quiz ID: <span th:text="${quiz != null ? quiz.id : 'NULL'}">No ID</span><br>
+            Questions: <span th:text="${quiz.questions != null ? quiz.questions.size() : 0}">0</span><br>
+            Attempt: <span th:text="${attempt != null ? attempt.id : 'NULL'}">No attempt</span><br>
+            User: <span sec:authentication="name">Unknown</span>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="navbar navbar-light bg-light mb-4">
+            <div class="container-fluid">
+                <a class="navbar-brand" th:href="@{/quiz/browse}">← Back to Quizzes</a>
+                <span class="navbar-text">
+                    Attempt ID: <span th:text="${attempt.id}">N/A</span>
+                </span>
+            </div>
+        </nav>
+
+        <div class="card shadow-lg">
+            <!-- Quiz Header -->
+            <div class="quiz-header">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h2 th:text="${quiz.title}">Quiz Title</h2>
+                        <p class="mb-0" th:text="${quiz.description} ?: 'No description available'">Quiz description</p>
+                    </div>
+                    <div class="col-md-4 text-md-end">
+                        <div class="bg-light text-dark p-2 rounded d-inline-block">
+                            <i class="fas fa-clock"></i> 
+                            <span th:if="${quiz.timeLimit != null}" th:text="${quiz.timeLimit} + ' minutes'">Time limit</span>
+                            <span th:unless="${quiz.timeLimit != null}">No time limit</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quiz Form -->
+            <form th:action="@{/quiz/submit}" method="post" id="quizForm">
+                <input type="hidden" name="quizId" th:value="${quiz.id}">
+                <input type="hidden" name="attemptId" th:value="${attempt.id}">
+                
+                <div class="card-body">
+                    <!-- Questions -->
+                    <div th:if="${quiz.questions != null and !quiz.questions.empty}">
+                        <div th:each="question, iter : ${quiz.questions}" class="question-card">
+                            <div class="question-header">
+                                <h5 class="mb-0">
+                                    Question <span th:text="${iter.index + 1}">1</span> of 
+                                    <span th:text="${quiz.questions.size()}">0</span>
+                                </h5>
+                            </div>
+                            
+                            <div class="card-body">
+                                <p class="lead" th:text="${question.text}">Question text goes here...</p>
+                                
+                                <div class="options-list">
+                                    <div th:each="option, optIter : ${question.options}" 
+                                         class="option-item p-3" 
+                                         onclick="selectOption(this)">
+                                        <div class="form-check">
+                                            <input class="form-check-input option-input" 
+                                                   type="radio" 
+                                                   th:name="'question_' + ${question.id}" 
+                                                   th:value="${option.id}"
+                                                   th:id="'q_' + ${question.id} + '_opt_' + ${optIter.index}">
+                                            <label class="form-check-label w-100" 
+                                                   th:for="'q_' + ${question.id} + '_opt_' + ${optIter.index}"
+                                                   th:text="${option.text}">
+                                                Option text
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Debug for question -->
+                                <div class="debug-info mt-2" th:if="${debug}">
+                                    <strong>Question Debug:</strong><br>
+                                    Question ID: <span th:text="${question.id}">0</span><br>
+                                    Options: <span th:text="${question.options != null ? question.options.size() : 0}">0</span>
+                                </div>
+                                
+                                <!-- No options warning -->
+                                <div th:if="${question.options == null or question.options.empty}" class="alert alert-warning mt-3">
+                                    No options available for this question.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="text-center mt-4">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="fas fa-paper-plane"></i> Submit Quiz
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- No Questions Warning -->
+                    <div th:if="${quiz.questions == null or quiz.questions.empty}" class="alert alert-warning">
+                        <h4>No Questions Available</h4>
+                        <p>This quiz doesn't have any questions yet.</p>
+                        <a th:href="@{/quiz/browse}" class="btn btn-primary">Back to Quizzes</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Quiz Instructions -->
+        <div class="card mt-4 shadow-sm">
+            <div class="card-header bg-light">
+                <h5 class="mb-0"><i class="fas fa-info-circle"></i> Quiz Instructions</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled mb-0">
+                    <li><i class="fas fa-check text-success me-2"></i> This quiz has 
+                        <strong th:text="${quiz.questions != null ? quiz.questions.size() : 0}">0</strong> questions</li>
+                    <li th:if="${quiz.timeLimit != null}"><i class="fas fa-check text-success me-2"></i> Time limit: 
+                        <strong th:text="${quiz.timeLimit}">0</strong> minutes</li>
+                    <li th:unless="${quiz.timeLimit != null}"><i class="fas fa-check text-success me-2"></i> No time limit</li>
+                    <li><i class="fas fa-check text-success me-2"></i> Select one answer per question</li>
+                    <li><i class="fas fa-check text-success me-2"></i> Click the option to select your answer</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error Message -->
+    <div th:if="${error}" class="container mt-4">
+        <div class="alert alert-danger">
+            <h4>Error</h4>
+            <p th:text="${error}">Error message</p>
+            <a th:href="@{/quiz/browse}" class="btn btn-primary">Back to Quizzes</a>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        console.log("Quiz take page loaded");
+        console.log("Quiz data:", {
+            title: document.querySelector('.quiz-header h2')?.textContent,
+            questions: document.querySelectorAll('.question-card').length
+        });
+
+        // Simple option selection
+        function selectOption(optionItem) {
+            // Remove selected class from all options in this question
+            const questionCard = optionItem.closest('.question-card');
+            questionCard.querySelectorAll('.option-item').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            
+            // Add selected class to clicked option
+            optionItem.classList.add('selected');
+            
+            // Check the radio button
+            const radioInput = optionItem.querySelector('input[type="radio"]');
+            radioInput.checked = true;
+            
+            console.log('Selected option:', radioInput.value, 'for question:', radioInput.name);
+        }
+
+        // Initialize option selection on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Pre-select any previously selected options
+            document.querySelectorAll('input[type="radio"]:checked').forEach(radio => {
+                const optionItem = radio.closest('.option-item');
+                if (optionItem) {
+                    optionItem.classList.add('selected');
+                }
+            });
+            
+            // Add click handlers to all option items
+            document.querySelectorAll('.option-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    selectOption(this);
+                });
+            });
+        });
+
+        // Form submission confirmation
+        document.getElementById('quizForm').addEventListener('submit', function(e) {
+            const answeredQuestions = document.querySelectorAll('input[type="radio"]:checked').length;
+            const totalQuestions = document.querySelectorAll('.question-card').length;
+            
+            console.log('Form submission - Answered:', answeredQuestions, 'Total:', totalQuestions);
+            
+            if (answeredQuestions < totalQuestions) {
+                const confirmSubmit = confirm(
+                    `You have answered ${answeredQuestions} out of ${totalQuestions} questions. ` +
+                    `Are you sure you want to submit?`
+                );
+                
+                if (!confirmSubmit) {
+                    e.preventDefault();
+                }
+            }
+        });
+
+        // Log all questions and options for debugging
+        document.addEventListener('DOMContentLoaded', function() {
+            const questions = document.querySelectorAll('.question-card');
+            console.log('Questions found:', questions.length);
+            
+            questions.forEach((question, index) => {
+                const options = question.querySelectorAll('.option-item');
+                console.log(`Question ${index + 1}: ${options.length} options`);
+            });
+        });
+    </script>
+</body>
+</html>

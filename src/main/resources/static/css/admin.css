@@ -1,0 +1,128 @@
+/* Admin Panel Specific Styles */
+.admin-sidebar {
+    background: var(--dark-color);
+    color: white;
+    min-height: calc(100vh - 76px);
+    padding: 0;
+}
+
+.admin-sidebar .nav-link {
+    color: rgba(255, 255, 255, 0.8);
+    padding: 15px 20px;
+    border-left: 4px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.admin-sidebar .nav-link:hover,
+.admin-sidebar .nav-link.active {
+    color: white;
+    background: rgba(255, 255, 255, 0.1);
+    border-left-color: var(--primary-color);
+}
+
+.admin-sidebar .nav-link i {
+    width: 20px;
+    margin-right: 10px;
+}
+
+.admin-content {
+    padding: 30px;
+}
+
+.stats-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    border-top: 4px solid var(--primary-color);
+}
+
+.stat-card.success { border-top-color: var(--success-color); }
+.stat-card.warning { border-top-color: var(--warning-color); }
+.stat-card.danger { border-top-color: var(--danger-color); }
+
+.stat-number {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: var(--dark-color);
+    margin: 10px 0;
+}
+
+.stat-label {
+    color: #6c757d;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.quiz-form .question-item {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-left: 4px solid var(--info-color);
+}
+
+.option-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.option-row input[type="radio"] {
+    margin-right: 10px;
+}
+
+.add-question-btn,
+.add-option-btn {
+    background: var(--info-color);
+    border: none;
+    border-radius: 10px;
+    padding: 10px 20px;
+    color: white;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.add-question-btn:hover,
+.add-option-btn:hover {
+    background: var(--primary-color);
+    transform: translateY(-2px);
+}
+
+.attempts-table {
+    background: white;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.attempts-table th {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 15px;
+}
+
+.attempts-table td {
+    padding: 15px;
+    vertical-align: middle;
+}
+
+.badge-score {
+    padding: 6px 12px;
+    border-radius: 15px;
+    font-weight: 500;
+}
+
+.badge-high { background: #d4edda; color: #155724; }
+.badge-medium { background: #fff3cd; color: #856404; }
+.badge-low { background: #f8d7da; color: #721c24; }

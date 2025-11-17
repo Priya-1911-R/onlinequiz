@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <div th:replace="fragments/header :: header('Home')"></div>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header text-center">
+                <div class="auth-logo">
+                    <i class="fas fa-graduation-cap fa-3x text-primary"></i>
+                </div>
+                <h1 class="auth-title mt-3">Welcome to Online Quiz</h1>
+                <p class="auth-subtitle">Test your knowledge, challenge your friends, and learn something new!</p>
+            </div>
+
+            <div class="row mt-5">
+                <div class="col-md-6 mb-4">
+                    <div class="card quiz-card h-100 text-center">
+                        <div class="card-body">
+                            <i class="fas fa-user-graduate fa-3x text-primary mb-3"></i>
+                            <h4>For Participants</h4>
+                            <p>Take quizzes, track your progress, and improve your knowledge across various subjects.</p>
+                            <div class="mt-4">
+                                <a th:href="@{/register}" class="btn btn-primary btn-lg me-2" sec:authorize="!isAuthenticated()">
+                                    <i class="fas fa-user-plus"></i> Join Now
+                                </a>
+                                <a th:href="@{/quiz/browse}" class="btn btn-outline-primary btn-lg" sec:authorize="isAuthenticated()">
+                                    <i class="fas fa-play"></i> Start Quiz
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 mb-4">
+                    <div class="card quiz-card h-100 text-center">
+                        <div class="card-body">
+                            <i class="fas fa-chalkboard-teacher fa-3x text-success mb-3"></i>
+                            <h4>For Administrators</h4>
+                            <p>Create engaging quizzes, manage questions, and track participant performance.</p>
+                            <div class="mt-4">
+                                <a th:href="@{/admin/dashboard}" class="btn btn-success btn-lg" sec:authorize="hasRole('ADMIN')">
+                                    <i class="fas fa-cog"></i> Admin Panel
+                                </a>
+                                <p class="text-muted mt-2" sec:authorize="!hasRole('ADMIN')">
+                                    Contact administrator for access
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card quiz-card">
+                        <div class="card-body text-center">
+                            <h3>Why Choose Our Platform?</h3>
+                            <div class="row mt-4">
+                                <div class="col-md-3">
+                                    <i class="fas fa-bolt fa-2x text-warning mb-2"></i>
+                                    <h5>Fast & Easy</h5>
+                                    <p class="text-muted">Quick setup and intuitive interface</p>
+                                </div>
+                                <div class="col-md-3">
+                                    <i class="fas fa-chart-line fa-2x text-info mb-2"></i>
+                                    <h5>Track Progress</h5>
+                                    <p class="text-muted">Monitor your improvement over time</p>
+                                </div>
+                                <div class="col-md-3">
+                                    <i class="fas fa-shield-alt fa-2x text-success mb-2"></i>
+                                    <h5>Secure</h5>
+                                    <p class="text-muted">Your data is safe with us</p>
+                                </div>
+                                <div class="col-md-3">
+                                    <i class="fas fa-mobile-alt fa-2x text-primary mb-2"></i>
+                                    <h5>Responsive</h5>
+                                    <p class="text-muted">Works on all devices</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="auth-footer text-center mt-5">
+                <p>Ready to get started? 
+                    <a th:href="@{/register}" sec:authorize="!isAuthenticated()">Create an account</a>
+                    <a th:href="@{/dashboard}" sec:authorize="isAuthenticated()">Go to Dashboard</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="fragments/footer :: footer"></div>
+</body>
+</html>

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <div th:replace="fragments/header :: header('Register')"></div>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <div class="auth-logo text-center">
+                    <i class="fas fa-graduation-cap fa-2x text-primary"></i>
+                </div>
+                <h1 class="auth-title text-center">Create Account</h1>
+                <p class="auth-subtitle text-center">Join our quiz platform today</p>
+            </div>
+
+            <div th:if="${error}" class="alert alert-danger">
+                <i class="fas fa-exclamation-circle"></i> <span th:text="${error}"></span>
+            </div>
+
+            <form th:action="@{/register}" method="post" class="auth-form" id="registerForm">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="username" class="form-label">Username *</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                <input type="text" class="form-control" id="username" name="username" 
+                                       placeholder="Choose a username" required th:value="${user?.username}">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="email" class="form-label">Email *</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                                <input type="email" class="form-control" id="email" name="email" 
+                                       placeholder="your@email.com" required th:value="${user?.email}">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="password" class="form-label">Password *</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                        <input type="password" class="form-control" id="password" name="password" 
+                               placeholder="Create a password" required>
+                        <button type="button" class="btn btn-outline-secondary password-toggle">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <div class="mt-2">
+                        <div class="progress" style="height: 5px;">
+                            <div id="password-strength" class="progress-bar" role="progressbar" style="width: 0%"></div>
+                        </div>
+                        <small id="password-strength-text" class="form-text"></small>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmPassword" class="form-label">Confirm Password *</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                        <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" 
+                               placeholder="Confirm your password" required>
+                        <button type="button" class="btn btn-outline-secondary password-toggle">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="role" class="form-label">Account Type</label>
+                    <select class="form-select" id="role" name="role">
+                        <option value="PARTICIPANT" selected>Participant - Take quizzes</option>
+                        <option value="ADMIN">Administrator - Create and manage quizzes</option>
+                    </select>
+                    <small class="form-text text-muted">Select Admin only if you need to create quizzes</small>
+                </div>
+
+                <div class="form-group form-check">
+                    <input type="checkbox" class="form-check-input" id="terms" name="terms" required>
+                    <label class="form-check-label" for="terms">
+                        I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>
+                    </label>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100 py-2">
+                    <i class="fas fa-user-plus"></i> Create Account
+                </button>
+            </form>
+
+            <div class="auth-footer text-center">
+                <p>Already have an account? <a th:href="@{/login}">Sign in here</a></p>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="fragments/footer :: footer"></div>
+</body>
+</html>
